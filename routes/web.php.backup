@@ -1,0 +1,117 @@
+<?php
+
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EmployeeController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RentalController;
+use App\Http\Controllers\RentalReturnController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TransactionReportController;
+use App\Http\Controllers\IncomeReportController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\EmployeeBonusController;
+use App\Http\Controllers\BonusReportController;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
+
+    // Category
+    Route::resource('categories', CategoryController::class)
+        ->except(['create', 'edit', 'show']);
+
+    // Product
+    Route::resource('products', ProductController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+// Customer
+        Route::resource('customers', CustomerController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+
+    //Employee
+    Route::resource('employees', EmployeeController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+
+    //rental controller
+    Route::resource('rentals', RentalController::class)
+    ->only(['index', 'store', 'update', 'destroy']);
+
+    Route::resource('rental-returns', RentalReturnController::class)
+    ->only(['index', 'store']);
+//pasyment controller
+    Route::resource('payments', PaymentController::class)
+    ->only(['index', 'store', 'destroy']);
+
+
+    //TransactionReport
+    Route::get(
+    '/reports/transactions',
+    [TransactionReportController::class, 'index']
+)->name('reports.transactions');
+
+//IncomeReport
+Route::get(
+    '/reports/income',
+    [IncomeReportController::class, 'index']
+)->name('reports.income');
+
+//invoice
+Route::get(
+    '/invoices/{rental}',
+    [InvoiceController::class, 'show']
+)->name('invoices.show');
+
+
+Route::get(
+    '/bonuses',
+    [EmployeeBonusController::class, 'index']
+)->name('bonuses.index');
+
+Route::post(
+    '/bonuses',
+    [EmployeeBonusController::class, 'store']
+)->name('bonuses.store');
+
+Route::put(
+    '/bonuses/{employeeBonusSetting}',
+    [EmployeeBonusController::class, 'update']
+)->name('bonuses.update');
+
+Route::delete(
+    '/bonuses/{employeeBonusSetting}',
+    [EmployeeBonusController::class, 'destroy']
+)->name('bonuses.destroy');
+
+//BOnus Report
+Route::get(
+    '/bonuses/report',
+    [BonusReportController::class, 'index']
+)->name('bonuses.report');
+
+});
+
+
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+});
+
+
+require __DIR__.'/auth.php';
