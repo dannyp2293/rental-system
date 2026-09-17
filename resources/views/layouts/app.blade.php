@@ -381,47 +381,38 @@
 
             <header class="sticky top-0 z-30 h-16 bg-white border-b border-gray-200">
 
-                <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                <div class="h-full px-4 sm:px-6 lg:px-8 flex items-center">
 
-                    <div class="flex items-center gap-3">
-
-                        {{-- MOBILE MENU --}}
-
-                        <button @click="sidebarOpen = !sidebarOpen"
-                            class="lg:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100">
-
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18h16" />
-
-                            </svg>
-
-                        </button>
+                    {{-- MOBILE MENU --}}
+                    <button @click="sidebarOpen = !sidebarOpen"
+                        class="lg:hidden mr-3 inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
 
 
-                        {{-- PAGE HEADER --}}
-
-                        @isset($header)
+                    {{-- PAGE HEADER --}}
+                    @isset($header)
+                        <div class="flex-1 min-w-0">
+                            {{ $header }}
+                        </div>
+                    @else
+                        <div class="flex-1 min-w-0">
                             <div class="text-lg font-semibold text-gray-800">
-
-                                {{ $header }}
-
-                            </div>
-                        @else
-                            <div class="text-lg font-semibold text-gray-800">
-
                                 Rental Management
-
                             </div>
-                        @endisset
 
-                    </div>
+                            <p class="text-sm text-gray-500">
+                                Kelola kategori produk rental.
+                            </p>
+                        </div>
+                    @endisset
 
 
                     {{-- USER --}}
-
-                    <div class="hidden sm:flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-3 ml-auto">
 
                         <div class="text-right">
 

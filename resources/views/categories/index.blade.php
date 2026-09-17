@@ -1,26 +1,26 @@
 <x-app-layout>
 
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">
-                    Kategori Produk
-                </h2>
+    {{-- <x-slot name="header">
+ <div class="flex items-center w-full">
+    <div>
+        <h2 class="text-xl font-bold text-gray-800">
+            Kategori Produk
+        </h2>
 
-                <p class="mt-1 text-sm text-gray-500">
-                    Kelola kategori produk rental.
-                </p>
-            </div>
+        <p class="mt-1 text-sm text-gray-500">
+            Kelola kategori produk rental.
+        </p>
+    </div>
 
-            <button
-                type="button"
-                onclick="openCreateModal()"
-                class="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700"
-            >
-                + Tambah Kategori
-            </button>
-        </div>
-    </x-slot>
+    <button
+        type="button"
+        onclick="openCreateModal()"
+        class="ml-auto rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-700"
+    >
+        + Tambah Kategori
+    </button>
+</div>
+    </x-slot> --}}
 
     <div class="py-8">
 
@@ -35,19 +35,29 @@
             {{-- Card --}}
             <div class="overflow-hidden rounded-xl bg-white shadow-sm">
 
-                <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+    {{-- CARD HEADER --}}
+    <div class="flex items-center justify-between border-b border-gray-100 px-6 py-5">
 
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">
-                            Daftar Kategori
-                        </h3>
+        <div>
+            <h3 class="text-lg font-bold text-gray-800">
+                Daftar Kategori
+            </h3>
 
-                        <p class="mt-1 text-sm text-gray-500">
-                            Total {{ $categories->total() }} kategori
-                        </p>
-                    </div>
+           
+            <p class="mt-1 text-sm text-gray-500">
+                Total {{ $categories->total() }} kategori
+            </p>
+        </div>
 
-                </div>
+        <button
+            type="button"
+            onclick="openCreateModal()"
+            class="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-700"
+        >
+            + Tambah Kategori
+        </button>
+
+    </div>
 
                 <div class="overflow-x-auto">
 
