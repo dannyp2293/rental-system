@@ -74,6 +74,25 @@ $products = \App\Models\Product::with('category')
         'status',
     ]);
 
+foreach ($products as $product) {
+
+    $usedStock = RentalItem::where('product_id', $product->id)
+        ->whereHas('rental', function ($query) {
+            $query->whereIn('status', [
+                'pending',
+                'active',
+            ]);
+        })
+        ->sum('quantity');
+
+    $product->available_stock = max(
+        0,
+        $product->stock - $usedStock
+    );
+
+    $product->rented_stock = $usedStock;
+}
+
 $couriers = \App\Models\User::where('role', 'kurir')
     ->orderBy('name')
     ->get([

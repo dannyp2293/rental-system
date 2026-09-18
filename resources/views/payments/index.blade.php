@@ -592,6 +592,14 @@ document.addEventListener('DOMContentLoaded', function () {
                                 Riwayat
                             </button>
 
+              <a
+    href="/invoices/${rental.id}"
+    target="_blank"
+    class="btn btn-sm btn-outline-primary"
+>
+    Invoice
+</a>
+
                         </div>
 
                     </td>

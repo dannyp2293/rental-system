@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Rental;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
@@ -25,4 +26,5 @@ class Payment extends Model
     {
         return $this->belongsTo(Rental::class);
     }
+
 }

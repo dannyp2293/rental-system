@@ -13,6 +13,16 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with('category')
+            ->withSum([
+                'rentalItems as rented_stock' => function ($query) {
+                    $query->whereHas('rental', function ($rentalQuery) {
+                        $rentalQuery->whereIn('status', [
+                            'pending',
+                            'active',
+                        ]);
+                    });
+                }
+            ], 'quantity')
             ->latest();
 
         if ($request->filled('search')) {

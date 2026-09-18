@@ -1,563 +1,512 @@
-<x-app-layout>
+<!DOCTYPE html>
+<html lang="id">
 
-    <div class="px-6 py-6">
+<head>
+    <meta charset="UTF-8">
 
-        {{-- ===================================================== --}}
-        {{-- ACTION BAR --}}
-        {{-- ===================================================== --}}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-        <div class="flex items-center justify-between mb-6">
+    <title>
+        Invoice {{ $rental->rental_code }}
+    </title>
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        @media print {
+
+            body {
+                background: white !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .invoice-container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .invoice-card {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="invoice-container mx-auto max-w-4xl px-6 py-10">
+
+        {{-- ========================================================= --}}
+        {{-- HEADER --}}
+        {{-- ========================================================= --}}
+
+        <div class="mb-6 flex items-start justify-between">
 
             <div>
 
-                <h1 class="text-2xl font-bold text-gray-900">
-                    Invoice Rental
-                </h1>
+                <div class="flex items-center gap-3">
 
-                <p class="mt-1 text-sm text-gray-500">
-                    Detail transaksi rental dan pembayaran.
-                </p>
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white">
+                        R
+                    </div>
+
+                    <div>
+
+                        <h1 class="text-xl font-bold">
+                            RENTAL
+                        </h1>
+
+                        <p class="text-xs text-gray-500">
+                            MANAGEMENT
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-6">
+
+                    <h2 class="text-3xl font-bold">
+                        INVOICE
+                    </h2>
+
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $rental->rental_code }}
+                    </p>
+
+                </div>
 
             </div>
 
 
-            <div class="flex items-center gap-2">
+            {{-- PAYMENT STATUS --}}
+            <div class="text-right">
 
-                <button
-                    type="button"
-                    onclick="window.print()"
-                    class="px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700"
-                >
-                    🖨 Cetak Invoice
-                </button>
+                <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Status Pembayaran
+                </p>
 
-                <button
-                    type="button"
-                    onclick="history.back()"
-                    class="px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50"
-                >
-                    Kembali
-                </button>
+
+                @if($paymentStatus === 'PAID')
+
+                    <span class="inline-flex rounded-full bg-green-100 px-4 py-2 text-xs font-bold text-green-700">
+                        LUNAS
+                    </span>
+
+                @elseif($paymentStatus === 'PARTIAL')
+
+                    <span class="inline-flex rounded-full bg-yellow-100 px-4 py-2 text-xs font-bold text-yellow-700">
+                        SEBAGIAN
+                    </span>
+
+                @else
+
+                    <span class="inline-flex rounded-full bg-red-100 px-4 py-2 text-xs font-bold text-red-700">
+                        BELUM BAYAR
+                    </span>
+
+                @endif
 
             </div>
 
         </div>
 
 
-        {{-- ===================================================== --}}
-        {{-- INVOICE --}}
-        {{-- ===================================================== --}}
+        {{-- ========================================================= --}}
+        {{-- CUSTOMER + RENTAL INFORMATION --}}
+        {{-- ========================================================= --}}
 
-        <div
-            id="invoice"
-            class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-        >
+        <div class="invoice-card mb-6 grid gap-6 rounded-xl bg-white p-6 shadow-sm md:grid-cols-2">
 
-            {{-- HEADER INVOICE --}}
+            {{-- CUSTOMER --}}
+            <div>
 
-            <div class="px-8 py-7 border-b border-gray-200">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Customer
+                </p>
 
-                <div class="flex items-start justify-between gap-6">
+                <p class="text-lg font-bold text-gray-900">
+                    {{ $rental->customer->name ?? '-' }}
+                </p>
 
-                    <div>
+                @if($rental->customer?->code)
 
-                        <div class="flex items-center gap-3">
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $rental->customer->code }}
+                    </p>
 
-                            <div
-                                class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-bold"
-                            >
-                                R
-                            </div>
+                @endif
 
-                            <div>
+                @if($rental->customer?->phone)
 
-                                <div class="text-xl font-bold text-gray-900">
-                                    RENTAL
-                                </div>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ $rental->customer->phone }}
+                    </p>
 
-                                <div class="text-sm text-gray-500">
-                                    MANAGEMENT
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <div class="mt-5">
-
-                            <h2 class="text-2xl font-bold text-gray-900">
-                                INVOICE
-                            </h2>
-
-                            <p class="text-sm text-gray-500 mt-1">
-                                Bukti transaksi rental
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="text-right">
-
-                        <div class="text-sm text-gray-500">
-                            No. Invoice
-                        </div>
-
-                        <div class="mt-1 text-lg font-bold text-gray-900">
-                            INV-{{ $rental->rental_code }}
-                        </div>
-
-                        <div class="mt-2 text-sm text-gray-500">
-                            Tanggal
-                        </div>
-
-                        <div class="text-sm font-medium text-gray-900">
-
-                            {{ $rental->rental_start?->format('d/m/Y H:i') ?? '-' }}
-
-                        </div>
-
-                    </div>
-
-                </div>
+                @endif
 
             </div>
 
 
-            {{-- ================================================= --}}
-            {{-- CUSTOMER + RENTAL INFO --}}
-            {{-- ================================================= --}}
+            {{-- PERIODE RENTAL --}}
+            <div class="md:text-right">
 
-            <div class="px-8 py-6 border-b border-gray-200">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Periode Rental
+                </p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <p class="text-sm font-semibold text-gray-900">
+                    {{ $rental->rental_start?->format('d/m/Y H:i') }}
+                </p>
 
-                    {{-- CUSTOMER --}}
+                <p class="my-1 text-xs text-gray-400">
+                    sampai
+                </p>
 
-                    <div>
+                <p class="text-sm font-semibold text-gray-900">
+                    {{ $rental->rental_end?->format('d/m/Y H:i') }}
+                </p>
 
-                        <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                            Pelanggan
-                        </div>
+            </div>
 
-                        <div class="mt-2 text-lg font-semibold text-gray-900">
-                            {{ $rental->customer?->full_name ?? $rental->customer?->name ?? '-' }}
-                        </div>
-
-                        <div class="mt-1 text-sm text-gray-500">
-                            ID Customer:
-                            {{ $rental->customer?->customer_code ?? '-' }}
-                        </div>
-
-                        @if($rental->customer?->whatsapp)
-
-                            <div class="mt-1 text-sm text-gray-500">
-                                WhatsApp:
-                                {{ $rental->customer->whatsapp }}
-                            </div>
-
-                        @endif
-
-                        @if($rental->customer?->address)
-
-                            <div class="mt-1 text-sm text-gray-500">
-                                {{ $rental->customer->address }}
-                            </div>
-
-                        @endif
-
-                    </div>
+        </div>
 
 
-                    {{-- RENTAL --}}
+        {{-- ========================================================= --}}
+        {{-- DETAIL RENTAL --}}
+        {{-- ========================================================= --}}
 
-                    <div>
+        <div class="invoice-card overflow-hidden rounded-xl bg-white shadow-sm">
 
-                        <div class="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                            Informasi Rental
-                        </div>
+            <div class="border-b px-6 py-5">
 
-                        <div class="mt-3 grid grid-cols-2 gap-y-2 text-sm">
+                <h3 class="font-bold text-gray-900">
+                    Detail Rental
+                </h3>
 
-                            <div class="text-gray-500">
-                                Kode Rental
-                            </div>
-
-                            <div class="font-semibold text-gray-900 text-right">
-                                {{ $rental->rental_code }}
-                            </div>
-
-
-                            <div class="text-gray-500">
-                                Mulai Rental
-                            </div>
-
-                            <div class="text-gray-900 text-right">
-                                {{ $rental->rental_start?->format('d/m/Y H:i') ?? '-' }}
-                            </div>
-
-
-                            <div class="text-gray-500">
-                                Selesai Rental
-                            </div>
-
-                            <div class="text-gray-900 text-right">
-                                {{ $rental->rental_end?->format('d/m/Y H:i') ?? '-' }}
-                            </div>
-
-
-                            @if($rental->returned_at)
-
-                                <div class="text-gray-500">
-                                    Dikembalikan
-                                </div>
-
-                                <div class="text-gray-900 text-right">
-                                    {{ $rental->returned_at->format('d/m/Y H:i') }}
-                                </div>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <p class="mt-1 text-xs text-gray-500">
+                    Daftar produk yang disewa.
+                </p>
 
             </div>
 
 
-            {{-- ================================================= --}}
-            {{-- ITEMS --}}
-            {{-- ================================================= --}}
+            <div class="overflow-x-auto">
 
-            <div class="px-8 py-6">
+                <table class="min-w-full">
 
-                <div class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
-                    Detail Produk
-                </div>
+                    <thead class="bg-gray-50">
 
-                <div class="overflow-x-auto">
+                        <tr>
 
-                    <table class="w-full text-sm">
+                            <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                Produk
+                            </th>
 
-                        <thead>
+                            <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                Qty
+                            </th>
 
-                            <tr class="border-b border-gray-200">
+                            <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                Durasi
+                            </th>
 
-                                <th class="py-3 text-left font-semibold text-gray-700">
-                                    No
-                                </th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                Harga
+                            </th>
 
-                                <th class="py-3 text-left font-semibold text-gray-700">
-                                    Produk
-                                </th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                Subtotal
+                            </th>
 
-                                <th class="py-3 text-center font-semibold text-gray-700">
-                                    Qty
-                                </th>
+                        </tr>
 
-                                <th class="py-3 text-right font-semibold text-gray-700">
-                                    Harga
-                                </th>
+                    </thead>
 
-                                <th class="py-3 text-right font-semibold text-gray-700">
-                                    Total
-                                </th>
+
+                    <tbody class="divide-y divide-gray-100">
+
+                        @forelse($rental->items as $item)
+
+                            <tr>
+
+                                {{-- PRODUK --}}
+                                <td class="px-6 py-4">
+
+                                    <div class="font-semibold text-gray-900">
+                                        {{ $item->product->name ?? '-' }}
+                                    </div>
+
+                                    @if($item->product?->code)
+
+                                        <div class="mt-1 text-xs text-gray-400">
+                                            {{ $item->product->code }}
+                                        </div>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- QTY --}}
+                                <td class="px-6 py-4 text-center text-sm">
+
+                                    {{ $item->quantity }}
+
+                                    <span class="text-xs text-gray-400">
+                                        unit
+                                    </span>
+
+                                </td>
+
+
+                                {{-- DURASI --}}
+                                <td class="px-6 py-4 text-center text-sm">
+
+                                    {{ $item->duration }}
+
+                                    @if($item->pricing_type === 'per_hour')
+
+                                        <span class="text-xs text-gray-400">
+                                            jam
+                                        </span>
+
+                                    @else
+
+                                        <span class="text-xs text-gray-400">
+                                            hari
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- HARGA --}}
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
+
+                                    Rp {{ number_format((float) $item->unit_price, 0, ',', '.') }}
+
+                                    <div class="mt-1 text-xs text-gray-400">
+
+                                        @if($item->pricing_type === 'per_hour')
+                                            / jam
+                                        @else
+                                            / hari
+                                        @endif
+
+                                    </div>
+
+                                </td>
+
+
+                                {{-- SUBTOTAL --}}
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-semibold">
+
+                                    Rp {{ number_format((float) $item->subtotal, 0, ',', '.') }}
+
+                                </td>
 
                             </tr>
 
-                        </thead>
+                        @empty
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="px-6 py-10 text-center text-sm text-gray-500"
+                                >
+                                    Tidak ada detail produk rental.
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
 
-                        <tbody>
+        {{-- ========================================================= --}}
+        {{-- TOTAL --}}
+        {{-- ========================================================= --}}
 
-                            @forelse($rental->items as $index => $item)
+        <div class="mt-6 flex justify-end">
 
-                                @php
+            <div class="invoice-card w-full rounded-xl bg-white p-6 shadow-sm md:max-w-md">
 
-                                    $qty = (float) ($item->quantity ?? 1);
+                {{-- SUBTOTAL --}}
+                <div class="flex items-center justify-between text-sm">
 
-                                    $price = (float) (
-                                        $item->price
-                                        ?? $item->unit_price
-                                        ?? 0
-                                    );
+                    <span class="text-gray-500">
+                        Subtotal
+                    </span>
 
-                                    $itemTotal = $qty * $price;
+                    <span class="font-medium text-gray-900">
+                        Rp {{ number_format((float) $rental->subtotal, 0, ',', '.') }}
+                    </span>
 
-                                @endphp
+                </div>
 
-                                <tr class="border-b border-gray-100">
 
-                                    <td class="py-3">
-                                        {{ $index + 1 }}
-                                    </td>
+                {{-- DISKON --}}
+                <div class="mt-3 flex items-center justify-between text-sm">
 
-                                    <td class="py-3">
+                    <span class="text-gray-500">
+                        Diskon
+                    </span>
 
-                                        <div class="font-medium text-gray-900">
-                                            {{ $item->product?->name ?? '-' }}
-                                        </div>
+                    <span class="font-medium text-gray-900">
+                        Rp {{ number_format((float) $rental->discount, 0, ',', '.') }}
+                    </span>
 
-                                    </td>
+                </div>
 
-                                    <td class="py-3 text-center">
-                                        {{ $qty }}
-                                    </td>
 
-                                    <td class="py-3 text-right">
-                                        Rp {{ number_format($price, 0, ',', '.') }}
-                                    </td>
+                {{-- TOTAL --}}
+                <div class="mt-4 border-t pt-4">
 
-                                    <td class="py-3 text-right font-medium">
-                                        Rp {{ number_format($itemTotal, 0, ',', '.') }}
-                                    </td>
+                    <div class="flex items-center justify-between">
 
-                                </tr>
+                        <span class="text-base font-bold text-gray-900">
+                            TOTAL
+                        </span>
 
-                            @empty
+                        <span class="text-2xl font-bold text-indigo-600">
+                            Rp {{ number_format((float) $rental->total, 0, ',', '.') }}
+                        </span>
 
-                                <tr>
-
-                                    <td
-                                        colspan="5"
-                                        class="py-8 text-center text-gray-500"
-                                    >
-                                        Tidak ada detail produk.
-                                    </td>
-
-                                </tr>
-
-                            @endforelse
-
-                        </tbody>
-
-                    </table>
+                    </div>
 
                 </div>
 
             </div>
 
+        </div>
 
-            {{-- ================================================= --}}
+
+        {{-- ========================================================= --}}
+        {{-- PAYMENT --}}
+        {{-- ========================================================= --}}
+
+        <div class="mt-6 invoice-card rounded-xl bg-white p-6 shadow-sm">
+
+            <div class="mb-5">
+
+                <h3 class="font-bold text-gray-900">
+                    Pembayaran
+                </h3>
+
+                <p class="mt-1 text-xs text-gray-500">
+                    Ringkasan pembayaran rental.
+                </p>
+
+            </div>
+
+
             {{-- TOTAL --}}
-            {{-- ================================================= --}}
+            <div class="flex items-center justify-between text-sm">
 
-            <div class="px-8 pb-8">
+                <span class="text-gray-500">
+                    Total Rental
+                </span>
 
-                <div class="flex justify-end">
-
-                    <div class="w-full md:w-96">
-
-                        <div class="border-t border-gray-200 pt-4 space-y-3">
-
-                            <div class="flex justify-between text-sm">
-
-                                <span class="text-gray-500">
-                                    Subtotal
-                                </span>
-
-                                <span class="font-medium text-gray-900">
-                                    Rp {{ number_format($rental->subtotal ?? 0, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="flex justify-between text-sm">
-
-                                <span class="text-gray-500">
-                                    Diskon
-                                </span>
-
-                                <span class="font-medium text-gray-900">
-                                    Rp {{ number_format($rental->discount ?? 0, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="flex justify-between text-sm">
-
-                                <span class="text-gray-500">
-                                    Deposit
-                                </span>
-
-                                <span class="font-medium text-gray-900">
-                                    Rp {{ number_format($rental->deposit ?? 0, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="flex justify-between pt-3 border-t border-gray-200">
-
-                                <span class="text-base font-bold text-gray-900">
-                                    TOTAL
-                                </span>
-
-                                <span class="text-xl font-bold text-gray-900">
-                                    Rp {{ number_format($rental->total ?? 0, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="flex justify-between text-sm pt-2">
-
-                                <span class="text-gray-500">
-                                    Sudah Dibayar
-                                </span>
-
-                                <span class="font-semibold text-green-600">
-                                    Rp {{ number_format($paid, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="flex justify-between text-sm">
-
-                                <span class="text-gray-500">
-                                    Sisa Tagihan
-                                </span>
-
-                                <span class="font-semibold text-red-600">
-                                    Rp {{ number_format($remaining, 0, ',', '.') }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="pt-4">
-
-                                @if($paymentStatus === 'PAID')
-
-                                    <div class="flex justify-between items-center px-4 py-3 rounded-lg bg-green-50 border border-green-200">
-
-                                        <span class="text-sm font-semibold text-green-700">
-                                            Status Pembayaran
-                                        </span>
-
-                                        <span class="px-3 py-1 rounded-full bg-green-600 text-white text-xs font-bold">
-                                            LUNAS
-                                        </span>
-
-                                    </div>
-
-                                @elseif($paymentStatus === 'PARTIAL')
-
-                                    <div class="flex justify-between items-center px-4 py-3 rounded-lg bg-yellow-50 border border-yellow-200">
-
-                                        <span class="text-sm font-semibold text-yellow-700">
-                                            Status Pembayaran
-                                        </span>
-
-                                        <span class="px-3 py-1 rounded-full bg-yellow-500 text-white text-xs font-bold">
-                                            SEBAGIAN
-                                        </span>
-
-                                    </div>
-
-                                @else
-
-                                    <div class="flex justify-between items-center px-4 py-3 rounded-lg bg-red-50 border border-red-200">
-
-                                        <span class="text-sm font-semibold text-red-700">
-                                            Status Pembayaran
-                                        </span>
-
-                                        <span class="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold">
-                                            BELUM BAYAR
-                                        </span>
-
-                                    </div>
-
-                                @endif
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <span class="font-semibold">
+                    Rp {{ number_format((float) $rental->total, 0, ',', '.') }}
+                </span>
 
             </div>
 
 
-            {{-- ================================================= --}}
+            {{-- SUDAH BAYAR --}}
+            <div class="mt-3 flex items-center justify-between text-sm">
+
+                <span class="text-gray-500">
+                    Sudah Dibayar
+                </span>
+
+                <span class="font-semibold text-green-600">
+                    Rp {{ number_format((float) $paid, 0, ',', '.') }}
+                </span>
+
+            </div>
+
+
+            {{-- SISA --}}
+            <div class="mt-3 flex items-center justify-between border-t pt-4">
+
+                <span class="font-semibold text-gray-900">
+                    Sisa Tagihan
+                </span>
+
+                <span class="text-lg font-bold text-red-600">
+                    Rp {{ number_format((float) $remaining, 0, ',', '.') }}
+                </span>
+
+            </div>
+
+
             {{-- PAYMENT HISTORY --}}
-            {{-- ================================================= --}}
+            @if($rental->payments->count() > 0)
 
-            @if($rental->payments->count())
+                <div class="mt-6 border-t pt-5">
 
-                <div class="px-8 py-6 border-t border-gray-200">
-
-                    <div class="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                    <h4 class="mb-3 text-sm font-semibold text-gray-700">
                         Riwayat Pembayaran
-                    </div>
-
-                    <div class="overflow-x-auto">
-
-                        <table class="w-full text-sm">
-
-                            <thead>
-
-                                <tr class="border-b border-gray-200">
-
-                                    <th class="py-3 text-left font-semibold text-gray-700">
-                                        Kode
-                                    </th>
-
-                                    <th class="py-3 text-left font-semibold text-gray-700">
-                                        Tanggal
-                                    </th>
-
-                                    <th class="py-3 text-left font-semibold text-gray-700">
-                                        Metode
-                                    </th>
-
-                                    <th class="py-3 text-right font-semibold text-gray-700">
-                                        Jumlah
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+                    </h4>
 
 
-                            <tbody>
+                    <div class="divide-y divide-gray-100">
 
-                                @foreach($rental->payments as $payment)
+                        @foreach($rental->payments as $payment)
 
-                                    <tr class="border-b border-gray-100">
+                            <div class="flex items-center justify-between py-3">
 
-                                        <td class="py-3 font-medium">
-                                            {{ $payment->payment_code }}
-                                        </td>
+                                <div>
 
-                                        <td class="py-3">
-                                            {{ $payment->paid_at?->format('d/m/Y H:i') ?? '-' }}
-                                        </td>
+                                    <p class="text-sm font-medium text-gray-900">
 
-                                        <td class="py-3">
-                                            {{ strtoupper(str_replace('_', ' ', $payment->method)) }}
-                                        </td>
+                                        {{ $payment->payment_date
+                                            ? \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y H:i')
+                                            : '-' }}
 
-                                        <td class="py-3 text-right font-medium text-green-600">
-                                            Rp {{ number_format($payment->amount, 0, ',', '.') }}
-                                        </td>
+                                    </p>
 
-                                    </tr>
+                                    @if($payment->method)
 
-                                @endforeach
+                                        <p class="mt-1 text-xs text-gray-400">
+                                            {{ ucfirst($payment->method) }}
+                                        </p>
 
-                            </tbody>
+                                    @endif
 
-                        </table>
+                                </div>
+
+
+                                <div class="text-right">
+
+                                    <p class="text-sm font-semibold text-green-600">
+                                        Rp {{ number_format((float) $payment->amount, 0, ',', '.') }}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        @endforeach
 
                     </div>
 
@@ -565,74 +514,103 @@
 
             @endif
 
+        </div>
 
-            {{-- ================================================= --}}
-            {{-- FOOTER --}}
-            {{-- ================================================= --}}
 
-            <div class="px-8 py-5 bg-gray-50 border-t border-gray-200">
+        {{-- ========================================================= --}}
+        {{-- DEPOSIT --}}
+        {{-- ========================================================= --}}
 
-                <div class="flex items-center justify-between text-xs text-gray-500">
+        @if((float) $rental->deposit > 0)
+
+            <div class="mt-6 invoice-card rounded-xl bg-white p-6 shadow-sm">
+
+                <div class="flex items-center justify-between">
 
                     <div>
-                        Terima kasih telah menggunakan Rental Management.
+
+                        <h3 class="font-semibold text-gray-900">
+                            Deposit / Jaminan
+                        </h3>
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Deposit yang diberikan untuk transaksi ini.
+                        </p>
+
                     </div>
 
-                    <div>
-                        Dicetak {{ now()->format('d/m/Y H:i') }}
-                    </div>
+                    <span class="text-lg font-bold text-gray-900">
+                        Rp {{ number_format((float) $rental->deposit, 0, ',', '.') }}
+                    </span>
 
                 </div>
 
             </div>
 
+        @endif
+
+
+        {{-- ========================================================= --}}
+        {{-- CATATAN --}}
+        {{-- ========================================================= --}}
+
+        @if($rental->notes)
+
+            <div class="mt-6 invoice-card rounded-xl bg-white p-6 shadow-sm">
+
+                <h3 class="font-semibold text-gray-900">
+                    Catatan
+                </h3>
+
+                <p class="mt-2 whitespace-pre-line text-sm text-gray-600">
+                    {{ $rental->notes }}
+                </p>
+
+            </div>
+
+        @endif
+
+
+        {{-- ========================================================= --}}
+        {{-- FOOTER / ACTION --}}
+        {{-- ========================================================= --}}
+
+        <div class="no-print mt-6 flex justify-end gap-3">
+
+            <button
+                type="button"
+                onclick="window.history.back()"
+                class="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+                Kembali
+            </button>
+
+
+            <button
+                type="button"
+                onclick="window.print()"
+                class="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+            >
+                Cetak Invoice
+            </button>
+
+        </div>
+
+
+        {{-- ========================================================= --}}
+        {{-- FOOTER --}}
+        {{-- ========================================================= --}}
+
+        <div class="mt-8 text-center">
+
+            <p class="text-xs text-gray-400">
+                Terima kasih telah menggunakan layanan rental kami.
+            </p>
+
         </div>
 
     </div>
 
+</body>
 
-    {{-- ========================================================= --}}
-    {{-- PRINT STYLE --}}
-    {{-- ========================================================= --}}
-
-    <style>
-
-        @media print {
-
-            @page {
-                size: A4;
-                margin: 12mm;
-            }
-
-            body {
-                background: white !important;
-            }
-
-            body * {
-                visibility: hidden;
-            }
-
-            #invoice,
-            #invoice * {
-                visibility: visible;
-            }
-
-            #invoice {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                box-shadow: none !important;
-                border: none !important;
-                border-radius: 0 !important;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-        }
-
-    </style>
-
-</x-app-layout>
+</html>
